@@ -105,7 +105,7 @@ export const withSlots: IAsComposableComponent = Component => {
   };
 
   return new Proxy(ResultComponent, {
-    get(target: any, key) {
+    get(target: any, key: string | symbol) {
       if (key in target || typeof key === 'symbol') {
         return target[key];
       }
