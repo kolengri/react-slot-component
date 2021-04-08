@@ -1,39 +1,43 @@
-import React from 'react';
+import {
+  ComponentType,
+  useMemo,
+  createElement,
+  Children,
+  isValidElement,
+} from 'react';
 
 // Extendable type
-type ComponentsPropsExtends = Record<string, Record<string, any>>;
+type SlotPropsExtends = Record<string, Record<string, any>>;
 type OwnPropsExtends = Record<string, any>;
 
 type WrappedComponent<
   Props,
-  Components extends ComponentsPropsExtends
-> = React.ComponentType<
+  Components extends SlotPropsExtends
+> = ComponentType<
   Props & {
-    slotsProps: Partial<Components>;
+    slotProps: Partial<Components>;
   }
 >;
 
-type ResultComponentExtraComponents<
-  Components extends ComponentsPropsExtends
-> = {
-  [key in keyof Components]: React.FC<Components[key]>;
+type ResultComponentExtraComponents<Components extends SlotPropsExtends> = {
+  [key in keyof Components]: ComponentType<Components[key]>;
 };
 
 // Component with included extra components
 type ResultComponent<
-  Components extends ComponentsPropsExtends,
+  Components extends SlotPropsExtends,
   Props extends OwnPropsExtends = OwnPropsExtends
-> = React.ComponentType<Props> & ResultComponentExtraComponents<Components>;
+> = ComponentType<Props> & ResultComponentExtraComponents<Components>;
 
 // Main function interface
-interface IAsComposableComponent {
+export type WithSlot = {
   <
-    Components extends ComponentsPropsExtends,
+    Slots extends SlotPropsExtends,
     Props extends OwnPropsExtends = OwnPropsExtends
   >(
-    Component: WrappedComponent<Props, Components>
-  ): ResultComponent<Components, Props>;
-}
+    Component: WrappedComponent<Props, Slots>
+  ): ResultComponent<Slots, Props>;
+};
 
 /**
  * Some known keys to exclude. Just performance optimization
@@ -55,24 +59,28 @@ const EXCLUDED_NAMES = [
   'PropTypes',
 ];
 
+/**
+ * Helpers
+ */
 const startsWithCapital = (word: string) => word.match(/^[A-Z]/);
 const isComponentName = (name: string) =>
   !EXCLUDED_NAMES.includes(name) && startsWithCapital(name);
 
-export const withSlots: IAsComposableComponent = Component => {
+/**
+ * Main
+ */
+export const withSlots: WithSlot = Component => {
   const slotsKeys: (string | symbol)[] = [];
 
   const ResultComponent: WrappedComponent<any, any> = props => {
     const { children } = props;
-    const childrenArr = React.useMemo(() => React.Children.toArray(children), [
-      children,
-    ]);
+    const childrenArr = useMemo(() => Children.toArray(children), [children]);
 
     // Find and get out all childProps
-    const slotsProps = React.useMemo(
+    const slotProps = useMemo(
       () =>
-        childrenArr.reduce<ComponentsPropsExtends>((curr, child) => {
-          if (React.isValidElement(child)) {
+        childrenArr.reduce<SlotPropsExtends>((curr, child) => {
+          if (isValidElement(child)) {
             const tag: string = (child.type as any).displayName;
 
             if (slotsKeys.includes(tag)) {
@@ -85,10 +93,10 @@ export const withSlots: IAsComposableComponent = Component => {
     );
 
     // Clean children from childProps components
-    const cleanChildren = React.useMemo(
+    const cleanChildren = useMemo(
       () =>
         childrenArr.filter(child => {
-          if (React.isValidElement(child)) {
+          if (isValidElement(child)) {
             const tag: string = (child.type as any).displayName;
             return !slotsKeys.includes(tag);
           }
@@ -97,11 +105,7 @@ export const withSlots: IAsComposableComponent = Component => {
       [childrenArr]
     );
 
-    return React.createElement(
-      Component,
-      { ...props, slotsProps },
-      cleanChildren
-    );
+    return createElement(Component, { ...props, slotProps }, cleanChildren);
   };
 
   return new Proxy(ResultComponent, {
