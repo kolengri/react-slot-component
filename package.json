@@ -39,6 +39,17 @@
   "name": "react-slot-component",
   "author": "Grigoriy Kolenko <kolenko@me.com>",
   "repository": "kolengri/react-slot-component",
+  "keywords": [
+    "components",
+    "composable",
+    "generic",
+    "layouts",
+    "react",
+    "rendering",
+    "slots",
+    "template",
+    "typescript"
+  ],
   "module": "dist/react-slot-component.esm.js",
   "size-limit": [
     {
