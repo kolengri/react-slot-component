@@ -37,7 +37,8 @@
     "trailingComma": "es5"
   },
   "name": "react-slot-component",
-  "author": "kolengri",
+  "author": "Grigoriy Kolenko <kolenko@me.com>",
+  "repository": "kolengri/react-slot-component",
   "module": "dist/react-slot-component.esm.js",
   "size-limit": [
     {
