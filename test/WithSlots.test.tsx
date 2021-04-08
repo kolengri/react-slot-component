@@ -41,7 +41,6 @@ const SCENARIOS: Scenario = [
   ],
   [
     'No slots filed test case',
-
     <SlotExampleComponent>
       <div data-test="SlotExampleChildren">SlotExampleChildrenValue</div>
     </SlotExampleComponent>,
@@ -56,7 +55,6 @@ const SCENARIOS: Scenario = [
   ],
   [
     'Default content in slots',
-
     <SlotExampleComponent>
       <div data-test="SlotExampleChildren">SlotExampleChildrenValue</div>
     </SlotExampleComponent>,

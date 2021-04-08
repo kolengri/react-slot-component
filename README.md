@@ -1,6 +1,6 @@
-# Vue inspired slot like high order component for React
+# react-slot-component
 
-## react-slot-component
+## Vue inspired slot like high order component for React
 
 [![NPM](https://img.shields.io/npm/v/react-slot-component.svg)](https://www.npmjs.com/package/react-slot-component)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
