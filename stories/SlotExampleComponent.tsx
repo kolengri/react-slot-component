@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { withSlots } from '../src';
+import { withSlots } from '../src/withSlots';
 
 type DivProps = React.DetailedHTMLProps<
   React.HTMLAttributes<HTMLDivElement>,
