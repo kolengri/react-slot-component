@@ -93,7 +93,7 @@ export const SlotExampleComponent = withSlots<
 // App.tsx
 import React from 'react';
 
-import { SlotExampleComponent } from './Layout';
+import { SlotExampleComponent } from './SlotExampleComponent';
 
 export const App = () => {
   return (
