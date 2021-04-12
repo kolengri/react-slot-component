@@ -90,7 +90,7 @@ export const withSlots: WithSlot = Component => {
           }
           return curr;
         }, {}),
-      [childrenArr]
+      [childrenArr, propagateSlotProps]
     );
 
     // Clean children from childProps components
@@ -103,7 +103,7 @@ export const withSlots: WithSlot = Component => {
           }
           return true;
         }),
-      [childrenArr]
+      [childrenArr, propagateSlotProps]
     );
 
     return createElement(
