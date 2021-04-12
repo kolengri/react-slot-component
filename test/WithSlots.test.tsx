@@ -30,11 +30,11 @@ const SCENARIOS: Scenario = [
     </SlotExampleComponent>,
     [
       ['SlotOneDefaultContent', false],
-      ['SlotTwoDefaultContent', false],
       ['SlotOne', true],
+      ['SlotOneChildren', 'SlotOneChildrenValue'],
+      ['SlotTwoDefaultContent', false],
       ['SlotTwo', true],
       ['SlotThree', false],
-      ['SlotOneChildren', 'SlotOneChildrenValue'],
       ['SlotTwoChildren', 'SlotTwoChildrenValue'],
       ['SlotExampleChildren', 'SlotExampleChildrenValue'],
     ],
@@ -66,6 +66,67 @@ const SCENARIOS: Scenario = [
       ['SlotThree', false],
       ['SlotOneChildren', false],
       ['SlotTwoChildren', false],
+      ['SlotExampleChildren', 'SlotExampleChildrenValue'],
+    ],
+  ],
+  [
+    'Test prop propagation',
+    <SlotExampleComponent
+      propagateSlotProps={{
+        SlotOne: {
+          'data-test': 'SlotOne',
+          slotOneProp1: 'slotOneProp1Value',
+          slotOneProp2: 'slotOneProp2Value',
+          children: 'SlotOneChildrenValue',
+        },
+      }}
+    >
+      <div data-test="SlotExampleChildren">SlotExampleChildrenValue</div>
+    </SlotExampleComponent>,
+    [
+      // Slot one
+      ['SlotOneDefaultContent', false],
+      ['SlotOne', true],
+      ['slotOneChildren', 'SlotOneChildrenValue'],
+      ['SlotTwoDefaultContent', 'SlotTwoDefaultContentValue'],
+      // Slot two
+      ['SlotTwo', false],
+      ['SlotTwoChildren', false],
+      ['SlotThree', false],
+      ['SlotExampleChildren', 'SlotExampleChildrenValue'],
+    ],
+  ],
+  [
+    'Test children slot has priority for propagateSlotProps',
+    <SlotExampleComponent
+      propagateSlotProps={{
+        SlotOne: {
+          'data-test': 'SlotOne343434',
+          slotOneProp1: 'slotOneProp1Value343',
+          slotOneProp2: 'slotOneProp2Value3443',
+          children: 'SlotOneChildrenValue343434',
+        },
+      }}
+    >
+      <SlotExampleComponent.SlotOne
+        data-test="SlotOne"
+        slotOneProp1="slotOneProp1Value"
+        slotOneProp2="slotOneProp2Value"
+      >
+        <div data-test="SlotOneChildren">SlotOneChildrenValue</div>
+      </SlotExampleComponent.SlotOne>
+      <div data-test="SlotExampleChildren">SlotExampleChildrenValue</div>
+    </SlotExampleComponent>,
+    [
+      // Slot one
+      ['SlotOneDefaultContent', false],
+      ['SlotOne', true],
+      ['SlotOneChildren', 'SlotOneChildrenValue'],
+      ['SlotTwoDefaultContent', 'SlotTwoDefaultContentValue'],
+      // Slot two
+      ['SlotTwo', false],
+      ['SlotTwoChildren', false],
+      ['SlotThree', false],
       ['SlotExampleChildren', 'SlotExampleChildrenValue'],
     ],
   ],

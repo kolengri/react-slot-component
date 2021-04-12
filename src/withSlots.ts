@@ -25,9 +25,10 @@ type ResultComponentExtraComponents<Components extends SlotPropsExtends> = {
 
 // Component with included extra components
 type ResultComponent<
-  Components extends SlotPropsExtends,
+  SlotProps extends SlotPropsExtends,
   Props extends OwnPropsExtends = OwnPropsExtends
-> = ComponentType<Props> & ResultComponentExtraComponents<Components>;
+> = ComponentType<Props & { propagateSlotProps?: Partial<SlotProps> }> &
+  ResultComponentExtraComponents<SlotProps>;
 
 // Main function interface
 export type WithSlot = {
@@ -73,7 +74,7 @@ export const withSlots: WithSlot = Component => {
   const slotsKeys: (string | symbol)[] = [];
 
   const ResultComponent: WrappedComponent<any, any> = props => {
-    const { children } = props;
+    const { children, propagateSlotProps } = props;
     const childrenArr = useMemo(() => Children.toArray(children), [children]);
 
     // Find and get out all childProps
@@ -105,7 +106,11 @@ export const withSlots: WithSlot = Component => {
       [childrenArr]
     );
 
-    return createElement(Component, { ...props, slotProps }, cleanChildren);
+    return createElement(
+      Component,
+      { ...props, slotProps: { ...propagateSlotProps, ...slotProps } },
+      cleanChildren
+    );
   };
 
   return new Proxy(ResultComponent, {
