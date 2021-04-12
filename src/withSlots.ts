@@ -90,7 +90,7 @@ export const withSlots: WithSlot = Component => {
           }
           return curr;
         }, {}),
-      [childrenArr]
+      [childrenArr, propagateSlotProps]
     );
 
     // Clean children from childProps components
@@ -103,31 +103,31 @@ export const withSlots: WithSlot = Component => {
           }
           return true;
         }),
-      [childrenArr]
+      [childrenArr, propagateSlotProps]
     );
 
     // Clean propagated props with only slotsKeys props
-    const cleanPropagationProps = useMemo(() => {
-      if (typeof propagateSlotProps !== 'object') {
-        return {};
-      }
+    // const cleanPropagationProps = useMemo(() => {
+    //   if (typeof propagateSlotProps !== 'object') {
+    //     return {};
+    //   }
 
-      return Object.entries(propagateSlotProps).reduce<SlotPropsExtends>(
-        (prev, curr) => {
-          const [tag, props] = curr;
-          if (slotsKeys.includes(tag)) {
-            prev[tag] = props as any;
-          }
+    //   return Object.entries(propagateSlotProps).reduce<SlotPropsExtends>(
+    //     (prev, curr) => {
+    //       const [tag, props] = curr;
+    //       if (slotsKeys.includes(tag)) {
+    //         prev[tag] = props as any;
+    //       }
 
-          return prev;
-        },
-        {}
-      );
-    }, [propagateSlotProps]);
+    //       return prev;
+    //     },
+    //     {}
+    //   );
+    // }, [propagateSlotProps]);
 
     return createElement(
       Component,
-      { ...otherProps, slotProps: { ...cleanPropagationProps, ...slotProps } },
+      { ...otherProps, slotProps: { ...propagateSlotProps, ...slotProps } },
       cleanChildren
     );
   };
