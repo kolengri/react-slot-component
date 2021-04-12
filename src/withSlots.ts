@@ -64,9 +64,10 @@ const EXCLUDED_NAMES = [
 /**
  * Helpers
  */
-const startsWithCapital = (word: string) => word.match(/^[A-Z]/);
-const isComponentName = (name: string) =>
-  !EXCLUDED_NAMES.includes(name) && startsWithCapital(name);
+const isComponentName = (name: any) =>
+  typeof name === 'string' &&
+  !EXCLUDED_NAMES.includes(name) &&
+  name.match(/^[A-Z0-9]/);
 
 /**
  * Main
