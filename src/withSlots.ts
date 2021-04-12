@@ -74,7 +74,7 @@ export const withSlots: WithSlot = Component => {
   const slotsKeys: (string | symbol)[] = [];
 
   const ResultComponent: WrappedComponent<any, any> = props => {
-    const { children, propagateSlotProps } = props;
+    const { children, propagateSlotProps, ...otherProps } = props;
     const childrenArr = useMemo(() => Children.toArray(children), [children]);
 
     // Find and get out all childProps
@@ -108,7 +108,7 @@ export const withSlots: WithSlot = Component => {
 
     return createElement(
       Component,
-      { ...props, slotProps: { ...propagateSlotProps, ...slotProps } },
+      { ...otherProps, slotProps: { ...propagateSlotProps, ...slotProps } },
       cleanChildren
     );
   };

@@ -24,7 +24,17 @@ const meta: Meta = {
 export default meta;
 
 const Template: Story<SlotExampleComponentProps> = ({ children, ...args }) => (
-  <SlotExampleComponent {...args}>
+  <SlotExampleComponent
+    {...args}
+    propagateSlotProps={{
+      SlotOne: {
+        'data-test': 'SlotOne',
+        slotOneProp1: 'slotOneProp1Value',
+        slotOneProp2: 'slotOneProp2Value',
+        children: 'SlotOneChildrenValue',
+      },
+    }}
+  >
     <SlotExampleComponent.SlotOne
       data-test="SlotOne"
       slotOneProp1="slotOneProp1Value"
