@@ -75,36 +75,28 @@ export const withSlots: WithSlot = Component => {
 
   const ResultComponent: WrappedComponent<any, any> = props => {
     const { children, propagateSlotProps, ...otherProps } = props;
-    const childrenArr = useMemo(() => Children.toArray(children), [children]);
+    const childrenArr = Children.toArray(children);
 
     // Find and get out all childProps
-    const slotProps = useMemo(
-      () =>
-        childrenArr.reduce<SlotPropsExtends>((curr, child) => {
-          if (isValidElement(child)) {
-            const tag: string = (child.type as any).displayName;
+    const slotProps = childrenArr.reduce<SlotPropsExtends>((curr, child) => {
+      if (isValidElement(child)) {
+        const tag: string = (child.type as any).displayName;
 
-            if (slotsKeys.includes(tag)) {
-              curr[tag] = child.props;
-            }
-          }
-          return curr;
-        }, {}),
-      [childrenArr, propagateSlotProps]
-    );
+        if (slotsKeys.includes(tag)) {
+          curr[tag] = child.props;
+        }
+      }
+      return curr;
+    }, {});
 
     // Clean children from childProps components
-    const cleanChildren = useMemo(
-      () =>
-        childrenArr.filter(child => {
-          if (isValidElement(child)) {
-            const tag: string = (child.type as any).displayName;
-            return !slotsKeys.includes(tag);
-          }
-          return true;
-        }),
-      [childrenArr, propagateSlotProps]
-    );
+    const cleanChildren = childrenArr.filter(child => {
+      if (isValidElement(child)) {
+        const tag: string = (child.type as any).displayName;
+        return !slotsKeys.includes(tag);
+      }
+      return true;
+    });
 
     // Clean propagated props with only slotsKeys props
     // const cleanPropagationProps = useMemo(() => {
