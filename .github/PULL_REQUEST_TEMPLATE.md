@@ -1,8 +1,3 @@
----
-name: "(#) "
-title: "(#) "
----
-
 # Issue #
 
 <!-- Choice how to resolve issue -->
