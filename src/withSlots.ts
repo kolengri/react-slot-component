@@ -71,7 +71,7 @@ const isComponentName = (name: string) =>
  * Main
  */
 export const withSlots: WithSlot = Component => {
-  const slotsKeys: (string | symbol)[] = [];
+  const slotsKeys: string[] = [];
 
   const ResultComponent: WrappedComponent<any, any> = props => {
     const { children, propagateSlotProps, ...otherProps } = props;
@@ -90,7 +90,7 @@ export const withSlots: WithSlot = Component => {
           }
           return curr;
         }, {}),
-      [childrenArr, propagateSlotProps]
+      [childrenArr]
     );
 
     // Clean children from childProps components
@@ -103,12 +103,31 @@ export const withSlots: WithSlot = Component => {
           }
           return true;
         }),
-      [childrenArr, propagateSlotProps]
+      [childrenArr]
     );
+
+    // Clean propagated props with only slotsKeys props
+    const cleanPropagationProps = useMemo(() => {
+      if (typeof propagateSlotProps !== 'object') {
+        return {};
+      }
+
+      return Object.entries(propagateSlotProps).reduce<SlotPropsExtends>(
+        (prev, curr) => {
+          const [tag, props] = curr;
+          if (slotsKeys.includes(tag)) {
+            prev[tag] = props as any;
+          }
+
+          return prev;
+        },
+        {}
+      );
+    }, [propagateSlotProps]);
 
     return createElement(
       Component,
-      { ...otherProps, slotProps: { ...propagateSlotProps, ...slotProps } },
+      { ...otherProps, slotProps: { ...cleanPropagationProps, ...slotProps } },
       cleanChildren
     );
   };
