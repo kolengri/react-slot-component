@@ -1,3 +1,3 @@
 # Example component
 
-Example in TODO
+Example is WIP
