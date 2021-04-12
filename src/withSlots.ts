@@ -1,9 +1,10 @@
 import {
   ComponentType,
-  useMemo,
   createElement,
   Children,
   isValidElement,
+  useMemo,
+  memo,
 } from 'react';
 
 // Extendable type
@@ -71,73 +72,72 @@ const isComponentName = (name: string) =>
  * Main
  */
 export const withSlots: WithSlot = Component => {
-  const slotsKeys: string[] = [];
+  const ResultComponent: WrappedComponent<any, any> = memo(
+    function ComponentWithSlots(props) {
+      const {
+        children,
+        propagateSlotProps,
+        slotKeys = [],
+        ...otherProps
+      } = props;
+      const childrenArr = useMemo(() => Children.toArray(children), [children]);
 
-  const ResultComponent: WrappedComponent<any, any> = props => {
-    const { children, propagateSlotProps, ...otherProps } = props;
-    const childrenArr = Children.toArray(children);
+      // Find and get out all childProps
+      const slotProps = useMemo(
+        () =>
+          childrenArr.reduce<SlotPropsExtends>((curr, child) => {
+            if (isValidElement(child)) {
+              const tag: string = (child.type as any).displayName;
 
-    // Find and get out all childProps
-    const slotProps = childrenArr.reduce<SlotPropsExtends>((curr, child) => {
-      if (isValidElement(child)) {
-        const tag: string = (child.type as any).displayName;
+              if (slotKeys.includes(tag)) {
+                curr[tag] = child.props;
+              }
+            }
+            return curr;
+          }, {}),
 
-        if (slotsKeys.includes(tag)) {
-          curr[tag] = child.props;
-        }
+        [slotKeys, childrenArr]
+      );
+
+      // Clean children from childProps components
+      const cleanChildren = useMemo(
+        () =>
+          childrenArr.filter(child => {
+            if (isValidElement(child)) {
+              const tag: string = (child.type as any).displayName;
+              return !slotKeys.includes(tag);
+            }
+            return true;
+          }),
+        [slotKeys, childrenArr]
+      );
+
+      return createElement(
+        Component,
+        { ...otherProps, slotProps: { ...propagateSlotProps, ...slotProps } },
+        cleanChildren
+      );
+    }
+  );
+
+  const ProxyComponent = new Proxy(ResultComponent, {
+    get(target: any, key, receiver) {
+      if (key in target || typeof key === 'symbol' || !isComponentName(key)) {
+        return Reflect.get(target, key, receiver);
       }
-      return curr;
-    }, {});
+      const slotKeys = Reflect.get(target, 'defaultProps')?.slotKeys || [];
+      const NullComponent: React.FC = () => null;
+      NullComponent.displayName = key as string;
+      target[key] = NullComponent;
 
-    // Clean children from childProps components
-    const cleanChildren = childrenArr.filter(child => {
-      if (isValidElement(child)) {
-        const tag: string = (child.type as any).displayName;
-        return !slotsKeys.includes(tag);
-      }
-      return true;
-    });
+      Reflect.set(target, 'defaultProps', {
+        ...target.defaultProps,
+        slotKeys: [...slotKeys, key],
+      });
 
-    // Clean propagated props with only slotsKeys props
-    // const cleanPropagationProps = useMemo(() => {
-    //   if (typeof propagateSlotProps !== 'object') {
-    //     return {};
-    //   }
-
-    //   return Object.entries(propagateSlotProps).reduce<SlotPropsExtends>(
-    //     (prev, curr) => {
-    //       const [tag, props] = curr;
-    //       if (slotsKeys.includes(tag)) {
-    //         prev[tag] = props as any;
-    //       }
-
-    //       return prev;
-    //     },
-    //     {}
-    //   );
-    // }, [propagateSlotProps]);
-
-    return createElement(
-      Component,
-      { ...otherProps, slotProps: { ...propagateSlotProps, ...slotProps } },
-      cleanChildren
-    );
-  };
-
-  return new Proxy(ResultComponent, {
-    get(target: any, key: string | symbol) {
-      if (key in target || typeof key === 'symbol') {
-        return target[key];
-      }
-
-      if (isComponentName(key)) {
-        const NullComponent: React.FC = () => null;
-        NullComponent.displayName = key as string;
-        target[key] = NullComponent;
-        slotsKeys.push(key);
-      }
-
-      return target[key];
+      return Reflect.get(target, key, receiver);
     },
   });
+
+  return ProxyComponent;
 };
