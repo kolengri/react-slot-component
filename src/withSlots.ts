@@ -101,17 +101,17 @@ export const withSlots: WithSlot = Component => {
       );
 
       // Clean children from childProps components
-      const cleanChildren = useMemo(
-        () =>
-          childrenArr.filter(child => {
-            if (isValidElement(child)) {
-              const tag: string = (child.type as any).displayName;
-              return !slotKeys.includes(tag);
-            }
-            return true;
-          }),
-        [slotKeys, childrenArr]
-      );
+      const cleanChildren = useMemo(() => {
+        const temp = childrenArr.filter(child => {
+          if (isValidElement(child)) {
+            const tag: string = (child.type as any).displayName;
+            return !slotKeys.includes(tag);
+          }
+          return true;
+        });
+
+        return temp.length > 0 ? temp : undefined;
+      }, [slotKeys, childrenArr]);
 
       return createElement(
         Component,
