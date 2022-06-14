@@ -70,7 +70,7 @@ const getSlotProps = (children: any, slotKeys: string[]) =>
     if (isValidElement(child)) {
       const tag: string = (child.type as any).displayName;
 
-      if (slotKeys.includes(tag)) {
+      if (slotKeys?.includes(tag)) {
         curr[tag] = child.props;
       }
     }
@@ -81,7 +81,7 @@ const getCleanChildren = (children: any, slotKeys: string[]) => {
   const res = Children.toArray(children).filter(child => {
     if (isValidElement(child)) {
       const tag: string = (child.type as any).displayName;
-      return !slotKeys.includes(tag);
+      return !slotKeys?.includes(tag);
     }
     return true;
   });
