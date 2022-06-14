@@ -127,17 +127,15 @@ const creatResultComponent = (
       return createElement(Component, passProps, cleanChildren);
     },
     (prevProps, nextProps) => {
-      const prevSlots = getSlotProps(prevProps.children, prevProps.slotKeys);
-      const nextSlots = getSlotProps(nextProps.children, nextProps.slotKeys);
-      const prevCleanChildren = getCleanChildren(
-        prevProps.children,
-        prevProps.slotKeys
-      );
-      const nextCleanChildren = getCleanChildren(
-        nextProps.children,
-        nextProps.slotKeys
-      );
+      const { children: prevPropsChildren, slotKeys: prevPropsSlotKeys, ...prevOtherProps } = prevProps;
+      const { children: nextPropsChildren, slotKeys: nextPropsSlotKeys, ...nextOtherProps } = nextProps;
+
+      const prevSlots = getSlotProps(prevPropsChildren, prevPropsSlotKeys);
+      const nextSlots = getSlotProps(nextPropsChildren, nextPropsSlotKeys);
+      const prevCleanChildren = getCleanChildren(prevPropsChildren, prevPropsSlotKeys);
+      const nextCleanChildren = getCleanChildren(nextPropsChildren, nextPropsSlotKeys);
       return (
+        deepEq(prevOtherProps, nextOtherProps) &&
         deepEq(prevSlots, nextSlots) &&
         deepEq(prevCleanChildren, nextCleanChildren)
       );
