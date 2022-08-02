@@ -6,7 +6,6 @@ import {
   useMemo,
   memo,
 } from 'react';
-import deepEq from 'deep-equal';
 
 // Extendable type
 type SlotPropsExtends = Record<string, Record<string, any>>;
@@ -93,56 +92,38 @@ const isComponentName = (name: any) =>
   !EXCLUDED_NAMES.includes(name) &&
   name.match(/^[A-Z0-9]/);
 
-const creatResultComponent = (
+const createResultComponent = (
   Component: WrappedComponent<any, any>
 ): WrappedComponent<any, any> => {
-  const ResultComponent: WrappedComponent<any, any> = memo(
-    props => {
-      const {
-        children,
-        propagateSlotProps,
-        slotKeys = [],
-        ...otherProps
-      } = props;
+  const ResultComponent: WrappedComponent<any, any> = memo(props => {
+    const {
+      children,
+      propagateSlotProps,
+      slotKeys = [],
+      ...otherProps
+    } = props;
 
-      // Find and get out all childProps
-      const slotProps = useMemo(() => getSlotProps(children, slotKeys), [
-        slotKeys,
-        children,
-      ]);
-      // Clean children from childProps components
-      const cleanChildren = useMemo(
-        () => getCleanChildren(children, slotKeys),
-        [slotKeys, children]
-      );
+    // Find and get out all childProps
+    const slotProps = useMemo(() => getSlotProps(children, slotKeys), [
+      slotKeys,
+      children,
+    ]);
+    // Clean children from childProps components
+    const cleanChildren = useMemo(() => getCleanChildren(children, slotKeys), [
+      slotKeys,
+      children,
+    ]);
 
-      const passProps = useMemo(
-        () => ({
-          ...otherProps,
-          slotProps: { ...propagateSlotProps, ...slotProps },
-        }),
-        [otherProps, slotProps, propagateSlotProps]
-      );
+    const passProps = useMemo(
+      () => ({
+        ...otherProps,
+        slotProps: { ...propagateSlotProps, ...slotProps },
+      }),
+      [otherProps, slotProps, propagateSlotProps]
+    );
 
-      return createElement(Component, passProps, cleanChildren);
-    },
-    (prevProps, nextProps) => {
-      const prevSlots = getSlotProps(prevProps.children, prevProps.slotKeys);
-      const nextSlots = getSlotProps(nextProps.children, nextProps.slotKeys);
-      const prevCleanChildren = getCleanChildren(
-        prevProps.children,
-        prevProps.slotKeys
-      );
-      const nextCleanChildren = getCleanChildren(
-        nextProps.children,
-        nextProps.slotKeys
-      );
-      return (
-        deepEq(prevSlots, nextSlots) &&
-        deepEq(prevCleanChildren, nextCleanChildren)
-      );
-    }
-  );
+    return createElement(Component, passProps, cleanChildren);
+  });
 
   return ResultComponent;
 };
@@ -151,7 +132,7 @@ const creatResultComponent = (
  */
 
 export const withSlots: WithSlot = Component => {
-  const ResultComponent = memo(creatResultComponent(Component));
+  const ResultComponent = memo(createResultComponent(Component));
   ResultComponent.displayName = `WithSlots(${Component.displayName ||
     Component.name})`;
 
@@ -164,7 +145,7 @@ export const withSlots: WithSlot = Component => {
       const slotKeys = Reflect.get(target, 'defaultProps')?.slotKeys || [];
       const cmp = Reflect.get(target, key);
       if (!cmp) {
-        const NullComponent: React.FC = memo(() => null, deepEq);
+        const NullComponent: React.FC = () => null;
         NullComponent.displayName = key as string;
         Reflect.set(target, key, NullComponent);
       }
