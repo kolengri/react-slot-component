@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0-beta-2",
+  "version": "2.0.0",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -90,8 +90,5 @@
     "tslib": "^2.2.0",
     "typescript": "^4.2.4"
   },
-  "dependencies": {
-    "@types/deep-equal": "^1.0.1",
-    "deep-equal": "^2.0.5"
-  }
+  "dependencies": {}
 }
