@@ -25,6 +25,13 @@
   "peerDependencies": {
     "react": ">=16"
   },
+  "typesVersions": {
+    ">=4": {
+      "*": [
+        "ts4/*"
+      ]
+    }
+  },
   "husky": {
     "hooks": {
       "pre-commit": "tsdx lint"
