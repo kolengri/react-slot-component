@@ -133,6 +133,10 @@ const SCENARIOS: Scenario = [
 ];
 
 describe('Slot example', () => {
+  test('registers slots without relying on defaultProps', () => {
+    expect((SlotExampleComponent as any).defaultProps).toBeUndefined();
+  });
+
   test.each(SCENARIOS)('Test case: %s', (_caseName, Component, testCases) => {
     const wrapped = shallow(Component).dive();
     testCases.forEach(([dataType, value]) => {
