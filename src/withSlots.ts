@@ -1,5 +1,6 @@
 import {
   ComponentType,
+  FC,
   createElement,
   Children,
   isValidElement,
@@ -70,7 +71,7 @@ const getSlotProps = (children: any, slotKeys: string[]) =>
       const tag: string = (child.type as any).displayName;
 
       if (slotKeys?.includes(tag)) {
-        curr[tag] = child.props;
+        curr[tag] = child.props as Record<string, any>;
       }
     }
     return curr;
@@ -93,13 +94,14 @@ const isComponentName = (name: any) =>
   name.match(/^[A-Z0-9]/);
 
 const createResultComponent = (
-  Component: WrappedComponent<any, any>
+  Component: WrappedComponent<any, any>,
+  registeredSlotKeys: string[]
 ): WrappedComponent<any, any> => {
   const ResultComponent: WrappedComponent<any, any> = memo(props => {
     const {
       children,
       propagateSlotProps,
-      slotKeys = [],
+      slotKeys = registeredSlotKeys,
       ...otherProps
     } = props;
 
@@ -132,7 +134,11 @@ const createResultComponent = (
  */
 
 export const withSlots: WithSlot = Component => {
-  const ResultComponent = memo(createResultComponent(Component));
+  // `defaultProps` for function components is not supported by React 19.
+  // Keep the registered slot names in this closure instead of attaching them
+  // to the memoized component.
+  const slotKeys: string[] = [];
+  const ResultComponent = memo(createResultComponent(Component, slotKeys));
   ResultComponent.displayName = `WithSlots(${Component.displayName ||
     Component.name})`;
 
@@ -142,18 +148,16 @@ export const withSlots: WithSlot = Component => {
         return Reflect.get(target, key, receiver);
       }
 
-      const slotKeys = Reflect.get(target, 'defaultProps')?.slotKeys || [];
       const cmp = Reflect.get(target, key);
       if (!cmp) {
-        const NullComponent: React.FC = () => null;
+        const NullComponent: FC = () => null;
         NullComponent.displayName = key as string;
         Reflect.set(target, key, NullComponent);
       }
 
-      Reflect.set(target, 'defaultProps', {
-        ...target.defaultProps,
-        slotKeys: [...slotKeys, key],
-      });
+      if (!slotKeys.includes(key as string)) {
+        slotKeys.push(key as string);
+      }
 
       return Reflect.get(target, key, receiver);
     },
