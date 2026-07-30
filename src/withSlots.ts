@@ -1,5 +1,6 @@
 import {
   ComponentType,
+  FC,
   createElement,
   Children,
   isValidElement,
@@ -70,7 +71,7 @@ const getSlotProps = (children: any, slotKeys: string[]) =>
       const tag: string = (child.type as any).displayName;
 
       if (slotKeys?.includes(tag)) {
-        curr[tag] = child.props;
+        curr[tag] = child.props as Record<string, any>;
       }
     }
     return curr;
@@ -149,7 +150,7 @@ export const withSlots: WithSlot = Component => {
 
       const cmp = Reflect.get(target, key);
       if (!cmp) {
-        const NullComponent: React.FC = () => null;
+        const NullComponent: FC = () => null;
         NullComponent.displayName = key as string;
         Reflect.set(target, key, NullComponent);
       }
